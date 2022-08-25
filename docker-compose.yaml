@@ -1,0 +1,16 @@
+version: '3.1'
+
+volumes:
+    homeassistant: {}
+
+services: 
+    homeassistant:
+        image: homeassistant/home-assistant:latest
+        container_name: homeassistant
+        privileged: true
+        ports:  
+            - 8123:8123
+        volumes:
+            - homeassistant:/config
+            - ${PWD}/custom_components:/config/custom_components
+            - ${PWD}/configuration.yaml:/config/configuration.yaml

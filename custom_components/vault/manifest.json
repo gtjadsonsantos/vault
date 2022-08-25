@@ -1,0 +1,13 @@
+
+
+{
+    "domain": "vault",
+    "name": "Vault",
+    "documentation": "https://github.com/jadson179/vault",
+    "issue_tracker": "https://github.com/jadson179/vault/issues",
+    "version": "v1.0.0",
+    "codeowners": ["@jadson179"],
+    "requirements": [],
+    "config_flow": true,
+    "iot_class": "cloud_push"
+  }

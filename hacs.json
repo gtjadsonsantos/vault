@@ -1,0 +1,6 @@
+{ 
+    "name": "Vault",
+    "render_readme": "true",
+    "iot_class": ["Cloud Push"],
+    "version": "2022.8.0"
+}

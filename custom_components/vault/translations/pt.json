@@ -1,0 +1,18 @@
+{
+  "title": "Vault",
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "addr": "Endereço do Servidor Vault",
+          "username": "Usuário",
+          "password": "Senha",
+          "email": "Conta de E-mail"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Já existe uma conta configurada"
+    }
+  }
+}
