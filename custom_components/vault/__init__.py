@@ -9,6 +9,7 @@ from typing import Any
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.auth.models import Credentials
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers import (
     device_registry,
@@ -17,6 +18,7 @@ from homeassistant.helpers import (
 )
 from homeassistant.auth.const import (
     GROUP_ID_ADMIN
+    
 )
 
 from .const import (
@@ -107,23 +109,38 @@ class VaultCoordinator(DataUpdateCoordinator):
 
         user = None
         if "vault_user" in data:
+
             user = await self.hass.auth.async_get_user(data["vault_user"])
+            credential = Credentials(
+                auth_provider_type="homeassistant",
+                auth_provider_id=None,
+                data={"username": "admin"},
+                is_new=False
+            )
+            user.credentials.append(credential)
 
         if user is None:
+
             user = await self.hass.auth.async_create_system_user(
                 "Vault", group_ids=[GROUP_ID_ADMIN]
             )
             data["vault_user"] = user.id
             await store.async_save(data)
-
+        
         refresh_token = await self.hass.auth.async_create_refresh_token(
             user,
             #Vault will be fine as long as we restart once every 5 years
             access_token_expiration=timedelta(days=365 * 10),
+            client_name="vault"    
         )
         
         # Create long lived access token
         self.hass.data[DOMAIN][self.config_entry.entry_id][ATTR_HOMEASSISTNAT_TOKEN] = self.hass.auth.async_create_access_token(refresh_token)
+
+        # Clear all other refresh tokens
+        #for token in list(user.refresh_tokens.values()):
+        #    if token.id != refresh_token.id:
+        #        await self.hass.auth.async_remove_refresh_token(token)
 
     async def async_sync_data_with_vault(self):
         await self.hass.async_add_executor_job(self._sync_data_with_vault)
@@ -137,7 +154,10 @@ class VaultCoordinator(DataUpdateCoordinator):
 
             url = f"{self.config_entry.data[CONFIG_VAULT_ADDR]}/v1/smarthomes/data/{email}"
             
-            payload = { "url": homeassistant_external_url, "token": homeassistant_token }            
+            payload = { 
+                "data": 
+                    { "url": homeassistant_external_url, "token": homeassistant_token }
+                }            
             
             headers = {
                 "Content-Type": "application/json",
